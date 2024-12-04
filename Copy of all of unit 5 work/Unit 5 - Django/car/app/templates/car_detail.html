@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ car.name }} Details{% endblock %}
+
+{% block content %}
+<h2>{{ car.name }}</h2>
+<p><strong>Make:</strong> {{ car.make }}</p>
+<p><strong>Year:</strong> {{ car.year }}</p>
+<p>{{ car.description }}</p>
+<a href="{% url 'car_list' %}">Back to Car List</a>
+{% endblock %}

@@ -1,0 +1,89 @@
+# Django Combined File for Number Checker App
+# ==================================================
+
+# 1. models.py
+from django.db import models
+
+class NumberCheck(models.Model):
+    number = models.IntegerField()
+
+    def __str__(self):
+        return str(self.number)
+
+# ==================================================
+# 2. forms.py
+from django import forms
+from .models import NumberCheck
+
+class NumberCheckForm(forms.ModelForm):
+    class Meta:
+        model = NumberCheck
+        fields = ['number']
+
+# ==================================================
+# 3. views.py
+from django.shortcuts import render
+from .forms import NumberCheckForm
+
+def check_number(request):
+    result = None  
+    if request.method == 'POST':
+        form = NumberCheckForm(request.POST)
+        if form.is_valid():
+            number = form.cleaned_data['number']
+            
+            if abs(100 - number) <= 10 or abs(200 - number) <= 10:
+                result = True
+            else:
+                result = False
+            form.save()  
+    else:
+        form = NumberCheckForm()
+    
+    return render(request, 'checker/check_number.html', {'form': form, 'result': result})
+
+# ==================================================
+# 4. templates
+"""
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Number Checker</title>
+</head>
+<body>
+    <h1>Check if a Number is Within 10 of 100 or 200</h1>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Check</button>
+    </form>
+
+    {% if result is not None %}
+        <h2>Result: {{ result }}</h2>
+    {% endif %}
+</body>
+</html>
+"""
+
+# ==================================================
+# 5. urls.py
+from django.urls import path
+from .views import check_number
+
+urlpatterns = [
+    path('', check_number, name='check_number'),
+]
+
+# ==================================================
+# 6. Project Configuration (number_checker/urls.py)
+from django.contrib import admin
+from django.urls import path, include
+
+urlpatterns = [
+    path('admin/', admin.site.urls),
+    path('', include('checker.urls')),  # Include checker app URLs
+]
+
+# ==================================================
